@@ -1,6 +1,7 @@
 import requests
 import json
-import constants.defs as defs
+from tools.configs_reader import read_config
+
 
 ############# Not for production use - you have to generate SSL certificate #############
 import urllib3
@@ -16,21 +17,19 @@ class CimplicityApi:
             "Content-Type": "application/json"
         })
 
-    # def get_project_classes(self, project:dict)->list[dict]:
-    #     project_id = project["id"]
-    #     session_id = project["session"]["sessionId"]
+    def get_project_classes(self, project_id: str, session_id) -> list[dict]:
 
-    #     url = f"{project_id}/classes"
+        url = f"{project_id}/classes"
 
-    #     headers = dict(Authorization=f"Basic {session_id}")
+        headers = dict(Authorization=f"Basic {session_id}")
 
-    #     ok, data = self.make_request(url, headers=headers)
+        ok, data = self.make_request(url, headers=headers)
 
-    #     if ok == True:
-    #         return data
-    #     else:
-    #         print("ERROR get_project_classes()", data)
-    #         return None
+        if ok == True:
+            return data
+        else:
+            print("ERROR get_project_classes()", data)
+            return None
 
     # def get_project_objects(self, project:dict,params):
 
@@ -49,25 +48,25 @@ class CimplicityApi:
     #         print("ERROR get_project_objects()", data)
     #         return None
 
-    # def get_sessionId(self,project:dict):
+    def get_sessionId(self, project_id: str):
 
-    #     project_id = project["id"]
-    #     username = project["auth"]["username"]
-    #     password = project["auth"]["password"]
+        username = read_config("CIM", "user")
+        password = read_config("CIM", "password")
 
-    #     url = f"{project_id}/session"
+        url = f"{project_id}/session"
 
-    #     ok, data = self.make_request(
-    #         url, verb="post", auth=(username, password))
+        ok, data = self.make_request(
+            url, verb="post", auth=(username, password))
 
-    #     if ok == True:
-    #         return data
-    #     else:
-    #         print("ERROR get_sessionId()", data)
-    #         return None
+        if ok == True:
+            return data
+        else:
+            print("ERROR get_sessionId()", data)
+            return None
 
     def make_request(self, url, verb='get', code=200, params=None, data=None, headers=None, auth=None):
-        full_url = f"{defs.CIM_URL}/{url}"
+        CIM_URL = read_config("CIM", "cim_url")
+        full_url = f"{CIM_URL}/{url}"
 
         if data is not None:
             data = json.dumps(data)
