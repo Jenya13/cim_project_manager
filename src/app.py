@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
-from tools.configs_reader import read_config, write_config
+from tools.configs_editor import read_config, write_config
 from project_manager.manager import ProjectManager
-
+import json
 
 if __name__ == "__main__":
 
@@ -23,4 +23,18 @@ if __name__ == "__main__":
 
     ########################################### App commands ###########################################
     manager = ProjectManager()
-    manager.init_project("TG")
+    classes = manager.init_project("TG1")
+
+    # project_dict = {
+    #     "id": "sss",
+    #     "session": "sss",
+    #     "cim_classes": classes,
+    #     "cim_objects": "obj"
+    # }
+    # json_object = json.dumps(project_dict, indent=4)
+
+    # json_file = os.path.join(
+    #     "C:\\Users\\evgenyb\\Documents\\cim_data_manager\\projects", f"test.json")
+    # # Writing to json file
+    # with open(json_file, "w") as outfile:
+    #     outfile.write(json_object)

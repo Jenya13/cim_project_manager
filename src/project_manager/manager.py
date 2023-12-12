@@ -1,62 +1,19 @@
-import time
-import json
-import os
-from api.cim_api import CimplicityApi
-from tools.configs_reader import read_config
+# import time
+# import json
+# import os
+# from api.cim_api import CimplicityApi
+# from tools.configs_editor import read_config
+from .cim_project import CimProject
 
 
 class ProjectManager():
 
     def __init__(self):
-        self.api = CimplicityApi()
+        self.project = CimProject()
 
     def init_project(self, project_id: str):
-        # settting new project in to projects folder
-
-        projects_dir = read_config("USER", "projects_dir")
-        projects = [project_id for project_id in os.listdir(
-            projects_dir) if os.path.isdir(os.path.join(projects_dir, project_id))]
-        # try to get session id for the spesific project
-        session_id = self.api.get_sessionId(project_id)
-        if session_id is not None:
-            # check if the project exist in projects folder, if not set folders for new project
-            if project_id in projects:
-                print(f"Project: {project_id} already exist")
-            else:
-                try:
-                    project_dir = os.path.join(projects_dir, project_id)
-                    os.mkdir(project_dir)
-                    os.mkdir(os.path.join(project_dir, "settings"))
-                    os.mkdir(os.path.join(project_dir, "templates"))
-                except OSError as error:
-                    print(error)
-
-                project_classes = self.api.get_project_classes(
-                    project_id, session_id["sessionId"])
-
-                # project_objects =
-
-                project_dict = {
-                    "id": project_id,
-                    "session": session_id,
-                    "classes": project_classes
-
-                }
-                json_object = json.dumps(project_dict, indent=4)
-
-                json_file = os.path.join(
-                    project_dir, f"settings\\{project_id}.json")
-                # Writing to json file
-                with open(json_file, "w") as outfile:
-                    outfile.write(json_object)
-                print(f"Project {project_id} successfully initialized")
-        else:
-            if project_id in projects:
-                print(
-                    f"Project: {project_id} exist in file system but doesn't exist in cimplicity")
-            else:
-                print(
-                    f"Project: {project_id} doesn't exist in file system nor in cimplicity")
+        self.project = CimProject()
+        self.project.init_project(project_id)
 
     # def set_project(self, name: str = None):
     #     path = get_settings_path()

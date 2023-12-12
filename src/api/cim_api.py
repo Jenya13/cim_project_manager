@@ -1,6 +1,6 @@
 import requests
 import json
-from tools.configs_reader import read_config
+from tools.configs_editor import read_config
 
 
 ############# Not for production use - you have to generate SSL certificate #############
@@ -31,22 +31,19 @@ class CimplicityApi:
             print("ERROR get_project_classes()", data)
             return None
 
-    # def get_project_objects(self, project:dict,params):
+    def get_project_objects(self, project_id: str, session_id, params) -> list[dict]:
 
-    #     project_id = project["id"]
-    #     session_id = project["session"]["sessionId"]
+        url = f"{project_id}/objects"
 
-    #     url = f"{project_id}/objects"
+        headers = dict(Authorization=f"Basic {session_id}")
 
-    #     headers = dict(Authorization=f"Basic {session_id}")
+        ok, data = self.make_request(url, params=params, headers=headers)
 
-    #     ok, data = self.make_request(url, params=params ,headers=headers)
-
-    #     if ok == True:
-    #         return data
-    #     else:
-    #         print("ERROR get_project_objects()", data)
-    #         return None
+        if ok == True:
+            return data
+        else:
+            print("ERROR get_project_objects()", data)
+            return None
 
     def get_sessionId(self, project_id: str):
 
