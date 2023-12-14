@@ -1,8 +1,3 @@
-# import time
-# import json
-# import os
-# from api.cim_api import CimplicityApi
-# from tools.configs_editor import read_config
 from .cim_project import CimProject
 
 

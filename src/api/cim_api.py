@@ -87,29 +87,3 @@ class CimplicityApi:
 
         except Exception as error:
             return False, {'Exception': error}
-
-
-# import time
-#
-# class SessionManager:
-#     def __init__(self, session_timeout_ms):
-#         self.session_timeout_ms = session_timeout_ms
-#         self.last_activity_time = time.time() * 1000  # Current time in milliseconds
-
-#     def is_session_expired(self):
-#         current_time = time.time() * 1000
-#         elapsed_time = current_time - self.last_activity_time
-#         return elapsed_time > self.session_timeout_ms
-
-#     def update_activity_time(self):
-#         self.last_activity_time = time.time() * 1000
-
-# # Example usage:
-# session_timeout_ms = 900000  # 15 minutes in milliseconds
-# session_manager = SessionManager(session_timeout_ms)
-
-# # Before making an API request, check if the session has expired
-# if session_manager.is_session_expired():
-#     # Get a new session here (e.g., by sending a new login request)
-#     # Once you have the new session, update the last activity time
-#     session_manager.update_activity_time()
