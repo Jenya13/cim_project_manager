@@ -19,11 +19,12 @@ class SessionManager:
     def get_new_session(self):
         api = CimplicityApi()
         session_dict = api.get_sessionId(self.project_id)
-        self.sessionId = session_dict["sessionId"]
-        self.refreshInterval = session_dict["refreshInterval"]
-        self.inactivityTimeout = session_dict["inactivityTimeout"]
-        self.privileges = session_dict["privileges"]
-        self.creationTime = time.time()*1000  # Current time in milliseconds
+        if session_dict is not None:
+            self.sessionId = session_dict["sessionId"]
+            self.refreshInterval = session_dict["refreshInterval"]
+            self.inactivityTimeout = session_dict["inactivityTimeout"]
+            self.privileges = session_dict["privileges"]
+            self.creationTime = time.time()*1000  # Current time in milliseconds
 
     def is_session_expired(self) -> bool:
         current_time = time.time() * 1000

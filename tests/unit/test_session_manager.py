@@ -1,6 +1,4 @@
 from functools import reduce
-import time
-import pytest
 
 
 def test_validate_session_expiresion(init_new_session, init_session_from_file):

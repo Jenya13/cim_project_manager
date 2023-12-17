@@ -1,4 +1,6 @@
+import os
 from .cim_project import CimProject
+from tools.configs_editor import read_config
 
 
 class ProjectManager():
@@ -9,6 +11,29 @@ class ProjectManager():
     def init_project(self, project_id: str):
         self.project = CimProject()
         self.project.init_project(project_id)
+
+    def set_project(self, project_id: str):
+        project = self.project.set_project(project_id)
+        if project is None:
+            print(f"No project: {project_id} in projects folder")
+        else:
+            self.project = project
+            print(f"Project: {project_id} is set")
+
+    def get_current_project_name(self):
+        project_name = self.project.get_project_name()
+        if project_name == "":
+            print("No project was set")
+        else:
+            print(f"Project name: {project_name}")
+
+    @staticmethod
+    def get_projects_names():
+        projects_dir = read_config("USER", "projects_dir")
+        projects = [project_id for project_id in os.listdir(
+            projects_dir) if os.path.isdir(os.path.join(projects_dir, project_id))]
+
+        return projects
 
     # def set_project(self, name: str = None):
     #     path = get_settings_path()

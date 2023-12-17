@@ -24,6 +24,9 @@ if __name__ == "__main__":
 
     ########################################### App commands ###########################################
     # manager = ProjectManager()
-    # classes = manager.init_project("TG")
-    session = SessionManager("TG")
-    print(session.to_dict())
+    # manager.init_project("TG1")
+
+    manager = ProjectManager()
+    manager.set_project("TG1")
+    # manager.get_current_project_name()
+    # print(manager.get_projects_names())

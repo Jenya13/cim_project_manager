@@ -1,6 +1,7 @@
 import pytest
 from project_manager.session_manager import SessionManager
-# from src.api.cim_api import CimplicityApi
+from project_manager.cim_class import CimClass
+from project_manager.cim_object import CimObject
 
 
 @pytest.fixture(scope="module")
@@ -20,3 +21,78 @@ def init_session_from_file():
     }
     session_manager = SessionManager("TG", session_dict)
     return session_manager
+
+
+@pytest.fixture(scope="module")
+def init_cim_class():
+    cls = {
+        "classId": "ANALOG",
+        "classVersion": 10,
+        "dataItems": [
+            {
+                "dataItemId": "SP",
+                "dataType": "REAL",
+                "description": "{$DESCRIPTION} - Setpoint Value #[SP_EX]"
+            },
+            {
+                "dataItemId": "PV",
+                "dataType": "REAL",
+                "description": "{$DESCRIPTION} - Present Value #[PV_EX]"
+            }
+        ],
+        "description": "Analog",
+        "compositeMembers": None
+    }
+    cim_class = CimClass(cls.get("classId"), cls.get("classVersion"), cls.get(
+        "dataItems"), cls.get("description"), cls.get("compositeMembers"))
+
+    return cim_class
+
+
+@pytest.fixture(scope="module")
+def init_cim_object():
+    obj = {
+        "Attributes": [
+            {
+                "ID": "OPC_CHANNEL",
+                "Value": "OPC"
+            },
+            {
+                "ID": "$DEVICE_ID",
+                "Value": "PANEL_MAIN"
+            },
+            {
+                "ID": "CAPTION",
+                "Value": "Analog"
+            },
+            {
+                "ID": "$SCREEN_ID",
+                "Value": "Analog"
+            },
+            {
+                "ID": "$RESOURCE_ID",
+                "Value": "$SYSTEM"
+            },
+            {
+                "ID": "SP_EX",
+                "Value": "1"
+            },
+            {
+                "ID": "OPC_DEVICE",
+                "Value": "OPC"
+            },
+            {
+                "ID": "COMMENT",
+                "Value": "Analog"
+            }
+        ],
+        "ClassID": "ANALOG",
+        "Description": "Analog test",
+        "ID": "ANALOG_TEST",
+        "Routing": []
+    }
+
+    cim_object = CimObject(obj.get("Attributes"), obj.get(
+        "ClassID"), obj.get("Description"), obj.get("ID"), obj.get("Routing"))
+
+    return cim_object
