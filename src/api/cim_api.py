@@ -17,7 +17,7 @@ class CimplicityApi:
             "Content-Type": "application/json"
         })
 
-    def get_project_classes(self, project_id: str, session_id) -> list[dict]:
+    def get_project_classes(self, project_id: str, session_id: str) -> list[dict]:
 
         url = f"{project_id}/classes"
 
@@ -31,7 +31,7 @@ class CimplicityApi:
             print("ERROR get_project_classes()", data)
             return None
 
-    def get_project_objects(self, project_id: str, session_id, params) -> list[dict]:
+    def get_project_objects(self, project_id: str, session_id: str, params) -> list[dict]:
 
         url = f"{project_id}/objects"
 
@@ -58,7 +58,6 @@ class CimplicityApi:
         if ok == True:
             return data
         else:
-            print("ERROR get_sessionId()", data)
             return None
 
     def make_request(self, url, verb='get', code=200, params=None, data=None, headers=None, auth=None):
@@ -77,11 +76,19 @@ class CimplicityApi:
                 response = self.session.post(full_url, params=params, data=data, headers=headers, auth=(
                     auth[0], auth[1]), verify=False)
 
-            if response == None:
+            if response is None:
                 return False, {'error': 'verb not found'}
 
             if response.status_code == code:
                 return True, response.json()
+            elif response.status_code == 400:
+                try:
+                    # Attempt to parse the response content as JSON
+                    json_data = response.json()
+                    return True, json_data
+                except json.JSONDecodeError:
+                    # If parsing as JSON fails, return the response text
+                    return True, response.text
             else:
                 return False, response.json()
 

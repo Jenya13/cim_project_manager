@@ -44,6 +44,7 @@ class CimProject:
                     os.mkdir(os.path.join(project_dir, "templates"))
                 except OSError as error:
                     print(error)
+                    return
 
                 project_classes = self._get_classes(project_id, session)
 
@@ -186,7 +187,7 @@ class CimProject:
             for obj in objects:
                 self.cim_objects.append(CimObject(obj.get("Attributes"), obj.get(
                     "ClassID"), obj.get("Description"), obj.get("ID"), obj.get("Routing")))
-
+            f.close()
         except Exception as error:
             return print(f"Something went wrong when opening the file {project_id}.json")
 

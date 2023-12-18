@@ -35,6 +35,10 @@ class SessionManager:
         session = self.sessionId[:]
         return session
 
+    def get_project_id(self):
+        project_id = self.project_id[:]
+        return project_id
+
     def to_dict(self) -> dict:
         session_dict = self.__dict__
         del session_dict["project_id"]

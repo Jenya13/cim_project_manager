@@ -2,6 +2,13 @@ import pytest
 from project_manager.session_manager import SessionManager
 from project_manager.cim_class import CimClass
 from project_manager.cim_object import CimObject
+from api.cim_api import CimplicityApi
+
+
+@pytest.fixture(scope="module")
+def init_cim_api():
+    api = CimplicityApi()
+    return api
 
 
 @pytest.fixture(scope="module")
