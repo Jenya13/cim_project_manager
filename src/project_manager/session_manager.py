@@ -1,6 +1,8 @@
-
+import os
+import json
 import time
 from api.cim_api import CimplicityApi
+from tools.configs_editor import read_config
 
 
 class SessionManager:
@@ -26,6 +28,17 @@ class SessionManager:
             self.privileges = session_dict["privileges"]
             self.creationTime = time.time()*1000  # Current time in milliseconds
 
+            session = self.to_dict()
+            projects_dir = read_config("USER", "projects_dir")
+            project_dir = os.path.join(projects_dir, self.project_id)
+            json_file = os.path.join(
+                project_dir, f"settings\\{self.project_id}.json")
+
+            update_dict = {
+                "session": session
+            }
+            self.update_json_file(json_file, update_dict)
+
     def is_session_expired(self) -> bool:
         current_time = time.time() * 1000
         elapsed_time = current_time - self.creationTime
@@ -41,5 +54,24 @@ class SessionManager:
 
     def to_dict(self) -> dict:
         session_dict = self.__dict__
-        del session_dict["project_id"]
-        return session_dict
+        session_updated_dict = session_dict.copy()
+        del session_updated_dict["project_id"]
+        return session_updated_dict
+
+    def update_json_file(self, file_path, updates):
+        try:
+            # Read the existing JSON file
+            with open(file_path, 'r') as file:
+                data = json.load(file)
+
+            # Update the relevant attributes
+            data.update(updates)
+
+            # Write the updated data back to the JSON file
+            with open(file_path, 'w') as file:
+                json.dump(data, file, indent=4)
+
+            print(f'Changes successfully written to {file_path}')
+
+        except IOError as e:
+            print(f'Error: Unable to update {file_path}. {e}')

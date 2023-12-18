@@ -28,8 +28,10 @@ if __name__ == "__main__":
     # manager = ProjectManager()
     # manager.init_project("TG")
 
-    # manager = ProjectManager()
-    # manager.set_project("TG1")
+    manager = ProjectManager()
+    manager.set_project("TG1")
+    manager.update_template()
+
     # manager.get_current_project_name()
     # print(manager.get_projects_names())
 
