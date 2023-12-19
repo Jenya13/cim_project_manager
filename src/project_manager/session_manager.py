@@ -71,7 +71,7 @@ class SessionManager:
             with open(file_path, 'w') as file:
                 json.dump(data, file, indent=4)
 
-            print(f'Changes successfully written to {file_path}')
+            print(f'Session successfully updated')
 
         except IOError as e:
             print(f'Error: Unable to update {file_path}. {e}')

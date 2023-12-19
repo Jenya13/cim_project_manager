@@ -28,17 +28,63 @@ if __name__ == "__main__":
     # manager = ProjectManager()
     # manager.init_project("TG")
 
-    manager = ProjectManager()
-    manager.set_project("TG1")
-    manager.update_template()
+    # manager = ProjectManager()
+    # manager.set_project("TG")
+    # manager.update_template()
 
     # manager.get_current_project_name()
     # print(manager.get_projects_names())
 
-    # api = CimplicityApi()
-    # session = api.get_sessionId("TG")
+    obj_dict = {
+        "ObjectsInstances": [{
+            "ID": "ANALOG_TEST_04",
+            "ClassID": "ANALOG",
+            "Description": "Analog test 2",
+            "Attributes": [
+                {
+                    "ID": "OPC_CHANNEL",
+                    "Value": "OPC"
+                },
+                {
+                    "ID": "$DEVICE_ID",
+                    "Value": "PANEL_MAIN"
+                },
+                {
+                    "ID": "CAPTION",
+                    "Value": "Analog"
+                },
+                {
+                    "ID": "$SCREEN_ID",
+                    "Value": "Analog"
+                },
+                {
+                    "ID": "$RESOURCE_ID",
+                    "Value": "$SYSTEM"
+                },
+                {
+                    "ID": "SP_EX",
+                    "Value": "1"
+                },
+                {
+                    "ID": "OPC_DEVICE",
+                    "Value": "OPC"
+                },
+                {
+                    "ID": "COMMENT",
+                    "Value": "Analog2"
+                }
+            ], "Routing": []
+        }
+        ]
+    }
 
-    # session_id = session.get("sessionId")
+    api = CimplicityApi()
+    session = api.get_sessionId("TG1")
+
+    session_id = session.get("sessionId")
+    res = api.create_objects("TG1", session_id, obj_dict)
+    print(res)
+
     # headers = dict(Authorization=f"Basic {session_id}")
     # ok, res = api.make_request("TG5", headers=headers)
     # print(res.get("title"))

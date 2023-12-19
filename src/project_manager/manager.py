@@ -33,6 +33,12 @@ class ProjectManager():
         else:
             self.project.update_template()
 
+    def create_objects(self):
+        if not self.is_project_set():
+            print("No project was set")
+        else:
+            self.project.create_objects()
+
     def is_project_set(self):
         if self.project.project_id != "" and self.project.session_manager is not None and self.project.cim_classes != [] and self.project.cim_objects != []:
             return True

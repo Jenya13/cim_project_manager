@@ -128,6 +128,13 @@ class CimProject:
 
     def create_template_list(self, classes: dict, objects: dict) -> list[dict]:
         """ """
+
+        def custom_sort(item):
+            if item == "ID":
+                return (0, item)
+            else:
+                return (1, item)
+
         template_list = []
         for obj in objects:
             class_id = obj.get("ClassID")
@@ -139,13 +146,16 @@ class CimProject:
                     for dt in obj.get("Attributes"):
                         obj_data_items.append(dt.get("ID"))
                     obj_data_items.append("$Description")
+                    obj_data_items.append("ID")
 
                     for dt in cls.get("dataItems"):
                         result = self._extract_substring(dt.get("description"))
                         if result is not None and result in obj_data_items:
                             index = obj_data_items.index(result)
                             obj_data_items[index] = dt.get("dataItemId")
-                    df = pd.DataFrame(columns=sorted(obj_data_items))
+                    obj_data_items = sorted(obj_data_items)
+                    obj_data_items = sorted(obj_data_items, key=custom_sort)
+                    df = pd.DataFrame(columns=obj_data_items)
                     cls_data = {"class": class_id,
                                 "data_items": df}
                     template_list.append(cls_data)
@@ -199,6 +209,10 @@ class CimProject:
             return print(f"Something went wrong when opening the file {project_id}.json")
 
         return self
+
+    def create_objects(self, objects_file: str = None):
+        if objects_file is not None:
+            pass
 
     def update_template(self):
         if self._project_id != "":
