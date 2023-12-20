@@ -73,8 +73,7 @@ class CimplicityApi:
         if ok == True:
             return data
         else:
-            print(data)
-            return None
+            return data
 
     def make_request(self, url, verb='get', code=200, params=None, data=None, headers=None, auth=None):
         CIM_URL = read_config("CIM", "cim_url")
@@ -86,12 +85,15 @@ class CimplicityApi:
         try:
             response = None
             if verb == "get":
+
                 response = self.session.get(
                     full_url, params=params, data=data, headers=headers, verify=False)
+
             if verb == "post" and auth is not None:
 
                 response = self.session.post(
                     full_url, params=params, data=data, headers=headers, auth=(auth[0], auth[1]), verify=False)
+
             if verb == "post" and auth is None:
 
                 response = self.session.post(
