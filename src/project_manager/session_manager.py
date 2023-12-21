@@ -8,6 +8,7 @@ from tools.configs_editor import read_config
 class SessionManager:
 
     def __init__(self, project_id: str, session_from_dict: dict = None):
+        self._is_initialized = False
         self.project_id = project_id
         if session_from_dict is not None:
             self.sessionId = session_from_dict["sessionId"]
@@ -28,6 +29,9 @@ class SessionManager:
             self.privileges = session_dict["privileges"]
             self.creationTime = time.time()*1000  # Current time in milliseconds
 
+            if not self._is_initialized:
+                self._is_initialized = True
+                return
             session = self.to_dict()
             projects_dir = read_config("USER", "projects_dir")
             project_dir = os.path.join(projects_dir, self.project_id)
@@ -71,7 +75,7 @@ class SessionManager:
             with open(file_path, 'w') as file:
                 json.dump(data, file, indent=4)
 
-            print(f'Changes successfully written to {file_path}')
+            print(f'Session successfully updated')
 
         except IOError as e:
             print(f'Error: Unable to update {file_path}. {e}')

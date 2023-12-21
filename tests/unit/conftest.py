@@ -1,8 +1,23 @@
 import pytest
+import shutil
+import os
 from project_manager.session_manager import SessionManager
+from project_manager.cim_project import CimProject
 from project_manager.cim_class import CimClass
 from project_manager.cim_object import CimObject
+from tools.configs_editor import read_config
 from api.cim_api import CimplicityApi
+from tests.settings.configs import project_name
+
+
+@pytest.fixture(scope="module")
+def init_project():
+    project = CimProject()
+    project.init_project(project_name)
+    yield project
+    projects_dir = read_config("USER", "projects_dir")
+    project_dir = os.path.join(projects_dir, project_name)
+    shutil.rmtree(project_dir)
 
 
 @pytest.fixture(scope="module")
