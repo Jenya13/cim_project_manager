@@ -37,6 +37,7 @@ class CimProject:
     def cim_objects(self):
         return self._cim_objects
 
+    # ------------------------------------------------------------------------------------------------------------#
     def init_project(self, project_id: str):
         # settting new project in to projects folder
         projects_dir = read_config("USER", "projects_dir")
@@ -128,7 +129,6 @@ class CimProject:
         return self._cim_objects.copy()
 
     def create_template_list(self, classes: dict, objects: dict) -> list[dict]:
-        """ """
 
         def custom_sort(item):
             if item == "ID":
@@ -163,6 +163,7 @@ class CimProject:
 
         return template_list
 
+    # ------------------------------------------------------------------------------------------------------------#
     def _extract_substring(self, input_str: str) -> str:
         # Define the regular expression pattern
         pattern = r'#\[(.*?)\]'
@@ -309,9 +310,9 @@ class CimProject:
             for cls in project_classes:
                 classes_list.append(cls.to_dict())
 
-            object_list = []
+            objects_list = []
             for obj in project_objects:
-                object_list.append(obj.to_dict())
+                objects_list.append(obj.to_dict())
 
             projects_dir = read_config("USER", "projects_dir")
             project_dir = os.path.join(projects_dir, self._project_id)
@@ -320,19 +321,20 @@ class CimProject:
 
             update_dict = {
                 "classes": classes_list,
-                "objects": object_list
+                "objects": objects_list
             }
             self.update_json_file(json_file, update_dict)
 
             # Template file creation
             template_list = self.create_template_list(
-                classes_list, object_list)
+                classes_list, objects_list)
 
             self.create_template_file(
                 self._project_id, project_dir, template_list)
 
         else:
             print("Project not set, Try to set project befor update template")
+    # ------------------------------------------------------------------------------------------------------------#
 
     def create_template_file(self, project_id: str, project_dir: str, template_list: list):
 
