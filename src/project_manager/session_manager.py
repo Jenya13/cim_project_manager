@@ -21,8 +21,9 @@ class SessionManager:
 
     def get_new_session(self):
         api = CimplicityApi()
-        session_dict = api.get_sessionId(self.project_id)
-        if session_dict is not None:
+        status, session_dict = api.get_sessionId(self.project_id)
+
+        if status:
             self.sessionId = session_dict["sessionId"]
             self.refreshInterval = session_dict["refreshInterval"]
             self.inactivityTimeout = session_dict["inactivityTimeout"]
@@ -52,14 +53,17 @@ class SessionManager:
         session = self.sessionId[:]
         return session
 
-    def get_project_id(self):
+    def get_project_id(self) -> str:
         project_id = self.project_id[:]
         return project_id
 
     def to_dict(self) -> dict:
         session_dict = self.__dict__
         session_updated_dict = session_dict.copy()
+        if session_dict["_is_initialized"] == False:
+            return {}
         del session_updated_dict["project_id"]
+        del session_updated_dict["_is_initialized"]
         return session_updated_dict
 
     def update_json_file(self, file_path, updates):

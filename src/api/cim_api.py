@@ -28,9 +28,9 @@ class CimplicityApi:
             url, verb="post", auth=(username, password))
 
         if ok == True:
-            return data
+            return ok, data
         else:
-            return None
+            return False, data
 
     def get_project_classes(self, project_id: str, session_id: str) -> list[dict]:
 
@@ -105,15 +105,19 @@ class CimplicityApi:
             if response.status_code == code:
                 return True, response.json()
             elif response.status_code == 400:
-                try:
-                    # Attempt to parse the response content as JSON
-                    json_data = response.json()
+                if type(response.text) == str:
+                    return False, response.text
+                else:
+                    try:
+                        # Attempt to parse the response content as JSON
+                        json_data = response.json()
 
-                    return True, json_data
-                except json.JSONDecodeError:
-                    # If parsing as JSON fails, return the response text
-                    return True, response.text
+                        return False, json_data
+                    except json.JSONDecodeError:
+                        # If parsing as JSON fails, return the response text
+                        return True, response.text
             else:
+
                 return False, response.json()
 
         except Exception as error:

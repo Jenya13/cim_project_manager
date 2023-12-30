@@ -44,13 +44,21 @@ class CimProject:
         projects = [project_id for project_id in os.listdir(
             projects_dir) if os.path.isdir(os.path.join(projects_dir, project_id))]
 
+        if project_id in projects:
+
+            msg = f"Project: {project_id} already initialized"
+            status = False
+            return (status, msg)
+
         self._session_manager = SessionManager(project_id)
         session = self._session_manager.to_dict()
         if session:
             # check if the project exist in projects folder, if not, set folders for new project
+
             if project_id in projects:
                 print(f"Project: {project_id} already exist")
                 self._project_id = project_id
+                return None
             else:
                 try:
                     project_dir = os.path.join(projects_dir, project_id)
@@ -60,7 +68,7 @@ class CimProject:
                     os.mkdir(os.path.join(project_dir, "updates"))
                 except OSError as error:
                     print(error)
-                    return
+                    return None
 
                 project_classes = self._get_classes(project_id, session)
 
@@ -100,15 +108,16 @@ class CimProject:
                 self.create_template_file(
                     project_id, project_dir, template_list)
 
-                print(f"Project {project_id} successfully initialized")
                 self._project_id = project_id
+
+                status = True
+
+                return (status, self)
+
         else:
-            if project_id in projects:
-                print(
-                    f"Project: {project_id} exist in file system but doesn't exist in cimplicity")
-            else:
-                print(
-                    f"Project: {project_id} doesn't exist in file system nor in cimplicity")
+            status = False
+            msg = f"Project: {project_id} doesn't exist in file system nor in cimplicity"
+            return (False, msg)
 
     def _get_classes(self, project_id, session):
         self._cim_classes = []
@@ -182,7 +191,7 @@ class CimProject:
         projects = [project_id for project_id in os.listdir(
             projects_dir) if os.path.isdir(os.path.join(projects_dir, project_id))]
         if project_id not in projects:
-            return
+            return None
         # setting object data from json
         project_dir = os.path.join(projects_dir, project_id)
         json_file = os.path.join(
@@ -215,15 +224,13 @@ class CimProject:
     def create_objects(self,  update_file: str = None):
 
         fd_list = []
-        projects_dir = read_config("USER", "projects_dir")
-        project_dir = os.path.join(projects_dir, self.project_id)
-
         if update_file is not None:
-            objects_file = os.path.join(project_dir, f"updates\\{update_file}")
-            fd_dict = self.read_excel_objects_file(objects_file)
+            fd_dict = self.read_excel_objects_file(update_file)
             fd_list.append(fd_dict)
 
         else:
+            projects_dir = read_config("USER", "projects_dir")
+            project_dir = os.path.join(projects_dir, self.project_id)
             objects_folder = os.path.join(project_dir, "updates")
             files_list = os.listdir(objects_folder)
             files_list = [f for f in files_list if os.path.isfile(
@@ -235,10 +242,16 @@ class CimProject:
 
         objects_list = []
         for fd in fd_list:
+            _cls = None
             # Access the DataFrames by sheet name
             for class_name, data_frame in fd.items():
+
                 if len(data_frame) == 0:
                     continue
+
+                for cls in self._cim_classes:
+                    if cls.classId == class_name:
+                        _cls = cls
 
                 obj_type_list = data_frame.to_dict(orient='records')
 
@@ -252,21 +265,31 @@ class CimProject:
                     attr = obj.copy()
                     keys_to_remove = ["ID", "$Description"]
                     [attr.pop(key) for key in keys_to_remove]
-                    attr_list = []
 
+                    attr_list = []
                     for key, value in attr.items():
+                        attribute = {}
+                        value = str(value)
+                        for dt in _cls.dataItems:
+                            if key == dt.get("dataItemId"):
+                                data_item = self._extract_substring(
+                                    dt.get("description"))
+                                key = data_item
                         attribute = {
                             "ID": key,
                             "Value": value
                         }
+
                         attr_list.append(attribute)
 
                     new_obj.update({"Attributes": attr_list})
+
                     objects_list.append(new_obj)
 
         obj_dict = {
             "ObjectsInstances": objects_list
         }
+        # print(obj_dict)
 
         if self.session_manager.is_session_expired():
             self.session_manager.get_new_session()
@@ -275,13 +298,7 @@ class CimProject:
         res: dict = self.api.create_objects(
             self.project_id, session_id, obj_dict)
 
-        print("Objects create/update result: ")
-        if res.get("status") == 500:
-            print(f"Error: {res.get('detail')}")
-        else:
-            print(f"Total items: {len(res.get('ItemResults'))}")
-            print(f"Total successes: {res.get('NumSuccesses')}")
-            print(f"Total failures: {res.get('NumFailures')}")
+        return res
 
     def read_excel_objects_file(self, file_path: str):
         # Read all sheets from the Excel file into a dictionary of DataFrames
@@ -295,45 +312,45 @@ class CimProject:
         return data_frames
 
     def update_template(self):
-        if self._project_id != "":
-            if self._session_manager.is_session_expired():
-                self._session_manager.get_new_session()
-            project_classes = self._get_classes(
-                self._project_id, self._session_manager.to_dict())
 
-            object_id = "*_TEST"
-            params = {"projectId": self._project_id, "ObjectID": object_id}
-            project_objects = self._get_objects(
-                self._project_id, self._session_manager.to_dict(), params)
+        if self._session_manager.is_session_expired():
+            self._session_manager.get_new_session()
+        project_classes = self._get_classes(
+            self._project_id, self._session_manager.to_dict())
 
-            classes_list = []
-            for cls in project_classes:
-                classes_list.append(cls.to_dict())
+        object_id = "*_TEST"
+        params = {"projectId": self._project_id, "ObjectID": object_id}
+        project_objects = self._get_objects(
+            self._project_id, self._session_manager.to_dict(), params)
 
-            objects_list = []
-            for obj in project_objects:
-                objects_list.append(obj.to_dict())
+        classes_list = []
+        for cls in project_classes:
+            classes_list.append(cls.to_dict())
 
-            projects_dir = read_config("USER", "projects_dir")
-            project_dir = os.path.join(projects_dir, self._project_id)
-            json_file = os.path.join(
-                project_dir, f"settings\\{self._project_id}.json")
+        objects_list = []
+        for obj in project_objects:
+            objects_list.append(obj.to_dict())
 
-            update_dict = {
-                "classes": classes_list,
-                "objects": objects_list
-            }
-            self.update_json_file(json_file, update_dict)
+        projects_dir = read_config("USER", "projects_dir")
+        project_dir = os.path.join(projects_dir, self._project_id)
+        json_file = os.path.join(
+            project_dir, f"settings\\{self._project_id}.json")
 
-            # Template file creation
-            template_list = self.create_template_list(
-                classes_list, objects_list)
+        update_dict = {
+            "classes": classes_list,
+            "objects": objects_list
+        }
+        self.update_json_file(json_file, update_dict)
 
-            self.create_template_file(
-                self._project_id, project_dir, template_list)
+        # Template file creation
+        template_list = self.create_template_list(
+            classes_list, objects_list)
 
-        else:
-            print("Project not set, Try to set project befor update template")
+        self.create_template_file(
+            self._project_id, project_dir, template_list)
+
+        return (True, f"Template for {self.project_id} updated")
+
     # ------------------------------------------------------------------------------------------------------------#
 
     def create_template_file(self, project_id: str, project_dir: str, template_list: list):
@@ -365,7 +382,7 @@ class CimProject:
             with open(file_path, 'w') as file:
                 json.dump(data, file, indent=4)
 
-            print(f'Changes successfully written to {file_path}')
+            # print(f'Changes successfully written to {file_path}')
 
         except IOError as e:
             print(f'Error: Unable to update {file_path}. {e}')
